@@ -1,0 +1,83 @@
+---
+0.6*15title: "SHAP values for inbag vs. oob data"
+author: "M Loecher"
+date: "12 5 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+shap_inbag_avg <- read.csv("C:/Users/loecherm/Dropbox/Markus/Research/codeandstats/randomforest_investigation/JournalPaper/Arxiv2/python/shap_inbag_avg.csv", header=FALSE)
+shap_oob_avg <- read.csv("C:/Users/loecherm/Dropbox/Markus/Research/codeandstats/randomforest_investigation/JournalPaper/Arxiv2/python/shap_oob_avg.csv", header=FALSE)
+colnames(shap_inbag_avg) = colnames(shap_oob_avg) = c('Age', 'Pclass','Sex', 'PassengerId')
+
+Y_train <- read.table("C:/Users/loecherm/Dropbox/Markus/Research/codeandstats/randomforest_investigation/JournalPaper/Arxiv2/python/Y_train.csv", quote="\"", comment.char="")
+Y_train2 = Y_train
+Y_train2[Y_train==0] = -1
+shap_inbag_avg_means = colMeans(abs(shap_inbag_avg))
+shap_oob_avg_means = colMeans(abs(shap_oob_avg))
+```
+
+## "Raw" SHAP values
+
+```{r, fig.width=10,fig.height=6}
+par(mfrow=c(2,2))
+boxplot(shap_inbag_avg,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Inbag SHAP");grid()
+barplot(shap_inbag_avg_means,col="bisque",main = "Inbag SHAP")
+boxplot(shap_oob_avg,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Outbag SHAP");grid()
+barplot(shap_oob_avg_means,col="bisque",main = "OOB SHAP")
+#means = colMeans(mdiScore2[[4]]);points(means,col="red",pch=18)
+
+```
+
+## Weighting by Y 
+
+```{r}
+shap_inbag_wght = shap_inbag_avg
+shap_oob_wght = shap_oob_avg
+
+for (i in 1:4) {
+  shap_inbag_wght[,i] = Y_train*shap_inbag_avg[,i]
+  shap_oob_wght[,i] = Y_train*shap_oob_avg[,i]
+}
+
+shap_inbag_wght_means = colMeans(shap_inbag_wght)
+shap_oob_wght_means = colMeans(shap_oob_wght)
+```
+
+```{r, fig.width=10,fig.height=6}
+par(mfrow=c(2,2))
+boxplot(shap_inbag_wght,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Inbag SHAP");grid()
+barplot(shap_inbag_wght_means,col="bisque",main = "Inbag SHAP")
+boxplot(shap_oob_wght,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Outbag SHAP");grid()
+barplot(shap_oob_wght_means,col="bisque",main = "OOB SHAP")
+
+```
+
+## Weighting by Y2 
+
+```{r}
+shap_inbag_wght = shap_inbag_avg
+shap_oob_wght = shap_oob_avg
+
+for (i in 1:4) {
+  shap_inbag_wght[,i] = Y_train2*shap_inbag_avg[,i]
+  shap_oob_wght[,i] = Y_train2*shap_oob_avg[,i]
+}
+
+shap_inbag_wght_means = colMeans(shap_inbag_wght)
+shap_oob_wght_means = colMeans(shap_oob_wght)
+```
+
+```{r, fig.width=10,fig.height=6}
+par(mfrow=c(2,2))
+boxplot(shap_inbag_wght,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Inbag SHAP");grid()
+barplot(shap_inbag_wght_means,col="bisque",main = "Inbag SHAP")
+boxplot(shap_oob_wght,col=rgb(0,0,1,0.5), outcol=rgb(0,0,1,0.5),pch=20,cex=0.75, ylab = "Outbag SHAP");grid()
+barplot(shap_oob_wght_means,col="bisque",main = "OOB SHAP")
+
+```
